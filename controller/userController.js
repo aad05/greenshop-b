@@ -51,6 +51,7 @@ const sign_in = async ({ body }, res) => {
   }
 };
 
+// Method: POST; Description: User sign up
 const sign_up = async ({ body, query }, res) => {
   try {
     const { isVerify = "" } = query;
