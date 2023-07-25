@@ -19,6 +19,11 @@ const userNotFound = {
   message: "error",
   extraMessage: "User not found!",
 };
+const emailExists = {
+  message: "error",
+  extraMessage:
+    "User with same email already exists. Please make sure email is unique amd valid.",
+};
 
 // Method: POST; Description: User sign in
 const sign_in = async ({ body }, res) => {
@@ -65,16 +70,34 @@ const sign_up = async ({ body, query }, res) => {
       ].filter((value) => value),
     });
 
-    res.status(201).json({
-      data: await user.create({
-        name: body.name,
-        surname: body.surname,
-        permission: verified ? body.permission : default_permission,
-        password: body.password,
-        email: body.email,
-        user_type: verified ? "developer" : "observer",
-      }),
+    const foundUser = await user.find({ email: body.email });
+    if (foundUser.length) return res.status(406).json(emailExists);
+
+    const created_user = await user.create({
+      name: body.name,
+      surname: body.surname,
+      permission: verified ? body.permission : default_permission,
+      password: body.password,
+      email: body.email,
+      user_type: verified ? "developer" : "observer",
     });
+
+    jwt.sign(
+      { user: created_user },
+      "09qrjjwef923jnrge$5ndjwk",
+      (err, token) => {
+        return res.status(201).json({
+          message: "success",
+          data: {
+            token: token,
+            user: {
+              ...created_user._doc,
+              password: "********",
+            },
+          },
+        });
+      }
+    );
   } catch (error) {
     errorStatus500(error, res);
   }
