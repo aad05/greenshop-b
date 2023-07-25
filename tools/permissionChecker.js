@@ -58,6 +58,8 @@ const permissionChecker = async ({ query, method }, res, next) => {
     // Read restricting...
     if (method.toUpperCase() === "GET" && !foundUser.permission.read)
       return res.status(403).json(access_token_read_not_allowed);
+
+    return next();
   } catch (error) {
     errorStatus500(error, res);
   }

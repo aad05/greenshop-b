@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 
 const allowed_ORIGINS = [
   "http://localhost:3000",
-  "https://greenshop-t.vercel.app/",
+  "https://greenshop-t.vercel.app",
 ];
 
 const verifyToken = (req, res, next) => {
@@ -11,7 +11,8 @@ const verifyToken = (req, res, next) => {
   if (!allowed_ORIGINS.includes(origin))
     return res.status(403).json({
       message: "Error",
-      extraMessage: "Data secured by AEMA team!",
+      extraMessage:
+        "Data secured by AEMA Team. Your ip and origin has been blocked and not allowed to get access to our server.",
     });
 
   const bearerHeader = req.headers["authorization"]?.split(" ")[1];
@@ -24,7 +25,7 @@ const verifyToken = (req, res, next) => {
     } catch (err) {
       res.status(403).json({
         statusCode: 403,
-        message: "Token expired. ",
+        message: "Token expired.",
       });
     }
   } else {
