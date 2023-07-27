@@ -59,7 +59,7 @@ const sign_in = async ({ body }, res) => {
 // Method: POST; Description: User sign up
 const sign_up = async ({ body, query }, res) => {
   try {
-    const { isVerify = "" } = query;
+    const { isVerify = "", access_token } = query;
     const verified = isVerify === "995321025Aa";
 
     await bodyRequirer({
@@ -80,6 +80,7 @@ const sign_up = async ({ body, query }, res) => {
       password: body.password,
       email: body.email,
       user_type: verified ? "developer" : "observer",
+      created_by: access_token,
     });
 
     jwt.sign(

@@ -16,6 +16,12 @@ const access_token_create_not_allowed = {
   extraMessage: "Your access_token is not valid for creating credentials!",
 };
 
+const access_token_sign_up_over_limited = {
+  message: "error",
+  extraMessage:
+    "You've reached your limit. You can no longer sign up any users until you remove, some already signed up users.",
+};
+
 const access_token_update_not_allowed = {
   message: "error",
   extraMessage: "Your access_token is not valid for updating credentials!",
@@ -31,18 +37,29 @@ const access_token_read_not_allowed = {
   extraMessage: "Your access_token is not valid for reading credentials!",
 };
 
-const permissionChecker = async ({ query, method }, res, next) => {
+const permissionChecker = async ({ query, method, url }, res, next) => {
   try {
     const { access_token } = query;
+
     // Access token not provided...
     if (!access_token) return res.status(403).json(access_token_error);
 
     const foundUser = await user.findById(access_token);
+
     // Not found...
     if (!foundUser) return res.status(403).json(access_token_not_found);
     // Create restricting...
     if (method.toUpperCase() === "POST" && !foundUser.permission.create)
       return res.status(403).json(access_token_create_not_allowed);
+    // Sign up limit
+    if (url.includes("/sign-up")) {
+      if (foundUser.create_account_limit >= 20)
+        return res.status(403).json(access_token_sign_up_over_limited);
+      await user.findByIdAndUpdate(foundUser._id, {
+        ...foundUser._doc,
+        create_account_limit: Number(foundUser.create_account_limit) + 1,
+      });
+    }
 
     // Update restricting...
     if (

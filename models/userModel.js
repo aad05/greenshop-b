@@ -52,6 +52,10 @@ const user_model = new Schema({
     required: true,
     default: [],
   },
+  created_by: {
+    type: String,
+    required: true,
+  },
 });
 
 const user = users_db.model("users", user_model);
