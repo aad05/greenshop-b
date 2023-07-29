@@ -32,6 +32,10 @@ const flower_model = new Schema({
     type: String,
     required: true,
   },
+  detailed_images: {
+    type: Array,
+    required: true,
+  },
   rate: {
     type: Number,
     default: 0,
@@ -48,6 +52,7 @@ const flower_model = new Schema({
     type: Array,
     default: [],
   },
+  sold_times: { type: Number, default: 0 },
   created_at: { type: Date, required: true, default: Date.now },
   created_by: {
     type: String,
