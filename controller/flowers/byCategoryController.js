@@ -23,7 +23,13 @@ const post_required_value = [
 ];
 
 // Helpers
-const get_by_category_checker = async ({ type, category_type, sort }) => {
+const get_by_category_checker = async ({
+  type,
+  category_type,
+  sort,
+  range_min,
+  range_max,
+}) => {
   const sort_checker = () => {
     switch (sort) {
       case "default-sorting":
@@ -57,11 +63,13 @@ const get_by_category_checker = async ({ type, category_type, sort }) => {
   };
 
   const field_apply = async (model) => {
-    return await model.find().sort({
-      price: sort_checker(),
-      created_at: category_type_checker(),
-      sold_times: sold_checker(),
-    });
+    return await model
+      .find({ price: { $lte: range_max, $gte: range_min } })
+      .sort({
+        price: sort_checker(),
+        created_at: category_type_checker(),
+        sold_times: sold_checker(),
+      });
   };
 
   switch (type) {
@@ -130,7 +138,12 @@ const post_by_category_checker = async ({ type, body }) => {
 const get_by_category = async ({ params, query }, res) => {
   try {
     const { category } = params;
-    const { type = "all-plants", sort = "default-sorting" } = query;
+    const {
+      type = "all-plants",
+      sort = "default-sorting",
+      range_min = 0,
+      range_max = 1000,
+    } = query;
 
     res.status(200).json({
       message: "success",
@@ -138,6 +151,8 @@ const get_by_category = async ({ params, query }, res) => {
         type: category,
         category_type: type,
         sort,
+        range_min,
+        range_max,
       }),
     });
   } catch (error) {
