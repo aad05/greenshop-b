@@ -95,6 +95,30 @@ const get_by_category_checker = async ({
       throw new Error("Request should be provided with plant category!");
   }
 };
+const get_by_id = async ({ type, _id }) => {
+  switch (type) {
+    case "house-plants":
+      return await house_plants.findById(_id);
+    case "potter-plants":
+      return await potter_plants.findById(_id);
+    case "seeds":
+      return await seeds.findById(_id);
+    case "small_plants":
+      return await small_plants.findById(_id);
+    case "big_plants":
+      return await big_plants.findById(_id);
+    case "succulents":
+      return await succulents.findById(_id);
+    case "trerrariums":
+      return await trerrariums.findById(_id);
+    case "gardening":
+      return await gardening.findById(_id);
+    case "accessories":
+      return await accessories.findById(_id);
+    default:
+      throw new Error("Request should be provided with plant category!");
+  }
+};
 
 const post_by_category_checker = async ({ type, body }) => {
   const updater_by_category = async (model) => {
@@ -160,6 +184,18 @@ const get_by_category = async ({ params, query }, res) => {
   }
 };
 
+// Method: GET; Description: Get flower by id
+const get_by_category_id = async ({ params, query }, res) => {
+  try {
+    const { category, _id } = params;
+    res.status(200).json({
+      message: "success",
+      data: await get_by_id({ type: category, _id }),
+    });
+  } catch (error) {
+    errorStatus500(error, res);
+  }
+};
 // Method: POST; Description: Create flowers by category
 const post_by_category = async ({ body, params, query }, res) => {
   try {
@@ -187,6 +223,7 @@ const delete_by_category = async () => {};
 
 module.exports = {
   get_by_category,
+  get_by_category_id,
   post_by_category,
   put_by_category,
   delete_by_category,
