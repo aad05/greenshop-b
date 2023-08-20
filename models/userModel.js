@@ -56,6 +56,11 @@ const user_model = new Schema({
     type: String,
     required: true,
   },
+  order_list: {
+    type: Array,
+    required: true,
+    default: [],
+  },
 });
 
 const user = users_db.model("users", user_model);
