@@ -2,6 +2,8 @@ const { Router } = require("express");
 const router = Router();
 
 router.use("/user", require("./user_route"));
+// Order
+router.use("/order", require("./order_route"));
 // Category
 router.use("/flower/category", require("./category_route"));
 // By Category

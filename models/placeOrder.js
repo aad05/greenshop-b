@@ -24,4 +24,4 @@ const order_model = new Schema({
 
 const order = users_db.model("orders", order_model);
 
-module.exports = { order };
+module.exports = { order, order_model };
