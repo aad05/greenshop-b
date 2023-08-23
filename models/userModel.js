@@ -14,6 +14,10 @@ const user_model = new Schema({
     type: String,
     required: true,
   },
+  username: {
+    type: String,
+    default: "",
+  },
   permission: {
     type: Object,
     required: true,
@@ -21,6 +25,17 @@ const user_model = new Schema({
   email: {
     type: String,
     required: true,
+  },
+  billing_address: {
+    type: Object,
+    default: {
+      country: "",
+      town: "",
+      street_address: "",
+      extra_address: "",
+      state: "",
+      zip: "",
+    },
   },
   user_type: {
     type: String,

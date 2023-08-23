@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-const { v4: uuidv4 } = require("uuid");
 const { errorStatus500, bodyRequirer } = require("../errors");
 const { user } = require("../models/userModel");
 const {
@@ -17,6 +16,26 @@ const {
 // SignIn required values...
 const sign_in_required_values = ["password", "email"];
 const sign_up_required_values = ["name", "surname", "password", "email"];
+const update_account_detials_required_values = [
+  "_id",
+  "name",
+  "surname",
+  "email",
+  "phone_number",
+  "username",
+];
+const update_address_required_values = [
+  "_id",
+  "name",
+  "surname",
+  "country",
+  "town",
+  "street_address",
+  "state",
+  "zip",
+  "email",
+  "phone_number",
+];
 
 // Wishlist required values...
 const wishlist_required_values = ["route_path", "flower_id"];
@@ -38,6 +57,14 @@ const emailExists = {
   message: "error",
   extraMessage:
     "User with same email already exists. Please make sure email is unique amd valid.",
+};
+const username_unique = {
+  message: "error",
+  extraMessage: "username should be unique!",
+};
+const email_unique = {
+  message: "error",
+  extraMessage: "email should be unique!",
 };
 
 // Method: POST; Description: User sign in
@@ -119,6 +146,81 @@ const sign_up = async ({ body, query }, res) => {
   }
 };
 
+// Method: POST; Description: Update User account details
+const update_account_details = async ({ body, query }, res) => {
+  try {
+    const {
+      name = "",
+      surname = "",
+      email = "",
+      phone_number = "",
+      username = "",
+      _id,
+    } = body;
+
+    await bodyRequirer({
+      body,
+      requiredValue: update_account_detials_required_values,
+    });
+
+    if (!(await user.find({ username })))
+      return res.status(400).json(username_unique);
+
+    await user.findByIdAndUpdate(_id, {
+      name,
+      surname,
+      email,
+      phone_number,
+      username,
+    });
+    return res.status(201).json({ message: "success" });
+  } catch (error) {
+    errorStatus500(error, res);
+  }
+};
+
+// Method: POST; Description: Update User address
+const update_address = async ({ body, query }, res) => {
+  try {
+    const {
+      _id,
+      name,
+      surname,
+      country,
+      town,
+      street_address,
+      state,
+      zip,
+      email,
+      phone_number,
+      extra_address = "",
+    } = body;
+
+    await bodyRequirer({
+      body,
+      requiredValue: update_address_required_values,
+    });
+
+    await user.findByIdAndUpdate(_id, {
+      name,
+      surname,
+      email,
+      phone_number,
+      billing_address: {
+        country,
+        town,
+        street_address,
+        state,
+        zip,
+        extra_address,
+      },
+    });
+    return res.status(201).json({ message: "success" });
+  } catch (error) {
+    errorStatus500(error, res);
+  }
+};
+
 const get_by_id = async ({ type, _id }) => {
   switch (type) {
     case "house-plants":
@@ -180,7 +282,6 @@ const create_wishlist = async ({ body, query: { access_token } }, res) => {
         {
           route_path: body.route_path,
           flower_id: body.flower_id,
-          _id: uuidv4(),
         },
       ],
     });
@@ -200,7 +301,9 @@ const delete_wishlist = async ({ body, query: { access_token } }, res) => {
     const foundUser = await user.findById(access_token);
     await user.findByIdAndUpdate(access_token, {
       ...foundUser._doc,
-      wishlist: foundUser.wishlist.filter((value) => value._id !== body._id),
+      wishlist: foundUser.wishlist.filter(
+        (value) => value.flower_id !== body._id
+      ),
     });
 
     return res.status(201).json({
@@ -214,6 +317,8 @@ const delete_wishlist = async ({ body, query: { access_token } }, res) => {
 module.exports = {
   sign_in,
   sign_up,
+  update_account_details,
+  update_address,
   get_wishlist,
   create_wishlist,
   delete_wishlist,

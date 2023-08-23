@@ -4,12 +4,11 @@ const {
   get_discount_flower,
 } = require("../controller/features/flowerDiscount");
 const { get_coupon_discount } = require("../controller/features/coupon");
+const { email_subscription } = require("../controller/features");
 const router = Router();
 
 router.get("/discount", permissionChecker, get_discount_flower);
 router.get("/coupon", permissionChecker, get_coupon_discount);
-// router.post("/", permissionChecker, verifyToken, post_category);
-// router.put("/", permissionChecker, verifyToken, put_category);
-// router.delete("/", permissionChecker, verifyToken, delete_category);
+router.post("/email-subscribe", permissionChecker, email_subscription);
 
 module.exports = router;
