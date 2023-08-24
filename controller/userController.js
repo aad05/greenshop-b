@@ -23,6 +23,7 @@ const update_account_detials_required_values = [
   "email",
   "phone_number",
   "username",
+  "profile_photo",
 ];
 const update_address_required_values = [
   "_id",
@@ -155,6 +156,7 @@ const update_account_details = async ({ body, query }, res) => {
       email = "",
       phone_number = "",
       username = "",
+      profile_photo,
       _id,
     } = body;
 
@@ -172,6 +174,7 @@ const update_account_details = async ({ body, query }, res) => {
       email,
       phone_number,
       username,
+      profile_photo,
     });
     return res.status(201).json({ message: "success" });
   } catch (error) {

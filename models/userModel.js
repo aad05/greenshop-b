@@ -26,6 +26,12 @@ const user_model = new Schema({
     type: String,
     required: true,
   },
+  profile_photo: {
+    type: String,
+    required: true,
+    default:
+      "https://alqadir.edu.pk/wp-content/uploads/2022/09/BS-Islamic-Studies-2022.jpg",
+  },
   billing_address: {
     type: Object,
     default: {
