@@ -79,9 +79,9 @@ const get_by_category_checker = async ({
       return await field_apply(potter_plants);
     case "seeds":
       return await field_apply(seeds);
-    case "small_plants":
+    case "small-plants":
       return await field_apply(small_plants);
-    case "big_plants":
+    case "big-plants":
       return await field_apply(big_plants);
     case "succulents":
       return await field_apply(succulents);
@@ -103,9 +103,9 @@ const get_by_id = async ({ type, _id }) => {
       return await potter_plants.findById(_id);
     case "seeds":
       return await seeds.findById(_id);
-    case "small_plants":
+    case "small-plants":
       return await small_plants.findById(_id);
-    case "big_plants":
+    case "big-plants":
       return await big_plants.findById(_id);
     case "succulents":
       return await succulents.findById(_id);
@@ -128,7 +128,7 @@ const post_by_category_checker = async ({ type, body }) => {
         ...foundData[0]._doc,
         count: foundData[0].count + 1,
       });
-      return await model.create(body);
+      return await model.create({ ...body, category: type });
     } catch (error) {
       throw new Error(error);
     }
@@ -141,9 +141,9 @@ const post_by_category_checker = async ({ type, body }) => {
       return await updater_by_category(potter_plants);
     case "seeds":
       return await updater_by_category(seeds);
-    case "small_plants":
+    case "small-plants":
       return await updater_by_category(small_plants);
-    case "big_plants":
+    case "big-plants":
       return await updater_by_category(big_plants);
     case "succulents":
       return await updater_by_category(succulents);

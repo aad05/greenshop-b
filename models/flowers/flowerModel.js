@@ -32,6 +32,10 @@ const flower_model = new Schema({
     type: String,
     required: true,
   },
+  category: {
+    type: String,
+    required: true,
+  },
   detailed_images: {
     type: Array,
     required: true,

@@ -30,7 +30,7 @@ router.use("/features", require("./features_route"));
 router.post(
   "/upload",
   permissionChecker,
-  //   verifyToken,
+  verifyToken,
   upload.single("image"),
   upload_image
 );

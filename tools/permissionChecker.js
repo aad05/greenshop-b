@@ -40,12 +40,9 @@ const access_token_read_not_allowed = {
 const permissionChecker = async ({ query, method, url }, res, next) => {
   try {
     const { access_token } = query;
-
     // Access token not provided...
     if (!access_token) return res.status(403).json(access_token_error);
-
     const foundUser = await user.findById(access_token);
-
     // Not found...
     if (!foundUser) return res.status(403).json(access_token_not_found);
     // Create restricting...
@@ -67,11 +64,9 @@ const permissionChecker = async ({ query, method, url }, res, next) => {
       !foundUser.permission.update
     )
       return res.status(403).json(access_token_update_not_allowed);
-
     // Delete restricting...
     if (method.toUpperCase() === "DELETE" && !foundUser.permission.delete)
       return res.status(403).json(access_token_delete_not_allowed);
-
     // Read restricting...
     if (method.toUpperCase() === "GET" && !foundUser.permission.read)
       return res.status(403).json(access_token_read_not_allowed);

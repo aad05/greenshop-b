@@ -36,4 +36,17 @@ const get_order = async ({ query }, res) => {
   }
 };
 
-module.exports = { make_order, get_order };
+// Method: DELETE; Description: Delete track order
+const delete_order = async ({ body }, res) => {
+  try {
+    await bodyRequirer({ body, requiredValue: ["_id"] });
+    await order.findByIdAndDelete(body._id);
+    return res.status(201).json({
+      message: "success",
+    });
+  } catch (error) {
+    errorStatus500(error, res);
+  }
+};
+
+module.exports = { make_order, get_order, delete_order };

@@ -12,6 +12,7 @@ const {
   gardening,
   accessories,
 } = require("../models/flowers/flowerModel");
+const { category } = require("../models/flowers/categoryModel");
 
 // SignIn required values...
 const sign_in_required_values = ["password", "email"];
@@ -232,9 +233,9 @@ const get_by_id = async ({ type, _id }) => {
       return await potter_plants.findById(_id);
     case "seeds":
       return await seeds.findById(_id);
-    case "small_plants":
+    case "small-plants":
       return await small_plants.findById(_id);
-    case "big_plants":
+    case "big-plants":
       return await big_plants.findById(_id);
     case "succulents":
       return await succulents.findById(_id);
@@ -253,7 +254,6 @@ const get_by_id = async ({ type, _id }) => {
 const get_wishlist = async ({ query }, res) => {
   try {
     const { access_token } = query;
-
     const foundUser = await user.findById(access_token);
     const data = [];
     for await (const value of foundUser.wishlist)
@@ -269,6 +269,7 @@ const get_wishlist = async ({ query }, res) => {
       data,
     });
   } catch (error) {
+    console.log(error);
     return errorStatus500(error, res);
   }
 };
@@ -317,6 +318,147 @@ const delete_wishlist = async ({ body, query: { access_token } }, res) => {
   }
 };
 
+// Method: GET; Description: Get product by created_by
+const get_products = async ({ query: { access_token } }, res) => {
+  try {
+    return res.status(200).json({
+      message: "success",
+      data: [
+        ...(await house_plants.find({ created_by: access_token })),
+        ...(await potter_plants.find({ created_by: access_token })),
+        ...(await seeds.find({ created_by: access_token })),
+        ...(await small_plants.find({ created_by: access_token })),
+        ...(await big_plants.find({ created_by: access_token })),
+        ...(await succulents.find({ created_by: access_token })),
+        ...(await trerrariums.find({ created_by: access_token })),
+        ...(await gardening.find({ created_by: access_token })),
+        ...(await accessories.find({ created_by: access_token })),
+      ],
+    });
+  } catch (error) {
+    errorStatus500(error, res);
+  }
+};
+
+// Method: DELETE; Description: Delete product by created_by
+const delete_by_category_and_created_by = async ({ type, created_by, _id }) => {
+  switch (type) {
+    case "house-plants":
+      if ((await house_plants.findById(_id)).created_by === created_by)
+        return await house_plants.findByIdAndDelete(_id);
+      else throw new Error("Your access token is not same with flower _id!");
+    case "potter-plants":
+      if ((await potter_plants.findById(_id)).created_by === created_by)
+        return await potter_plants.findByIdAndDelete(_id);
+      else throw new Error("Your access token is not same with flower _id!");
+    case "seeds":
+      if ((await seeds.findById(_id)).created_by === created_by)
+        return await seeds.findByIdAndDelete(_id);
+      else throw new Error("Your access token is not same with flower _id!");
+    case "small-plants":
+      if ((await small_plants.findById(_id)).created_by === created_by)
+        return await small_plants.findByIdAndDelete(_id);
+      else throw new Error("Your access token is not same with flower _id!");
+    case "big-plants":
+      if ((await big_plants.findById(_id).created_by) === created_by)
+        return await big_plants.findByIdAndDelete(_id);
+      else throw new Error("Your access token is not same with flower _id!");
+    case "succulents":
+      if ((await succulents.findById(_id)).created_by === created_by)
+        return await succulents.findByIdAndDelete(_id);
+      else throw new Error("Your access token is not same with flower _id!");
+    case "trerrariums":
+      if ((await trerrariums.findById(_id)).created_by === created_by)
+        return await trerrariums.findByIdAndDelete(_id);
+      else throw new Error("Your access token is not same with flower _id!");
+    case "gardening":
+      if ((await gardening.findById(_id)).created_by === created_by)
+        return await gardening.findByIdAndDelete(_id);
+      else throw new Error("Your access token is not same with flower _id!");
+    case "accessories":
+      if ((await accessories.findById(_id)).created_by === created_by)
+        return await accessories.findByIdAndDelete(_id);
+      else throw new Error("Your access token is not same with flower _id!");
+    default:
+      throw new Error("Request should be provided with plant category!");
+  }
+};
+const delete_product = async (
+  { query: { access_token }, params, body },
+  res
+) => {
+  try {
+    await bodyRequirer({ body, requiredValue: ["_id"] });
+    await delete_by_category_and_created_by({
+      type: params.category,
+      created_by: access_token,
+      _id: body._id,
+    });
+    const foundCategory = await category.find({ route_path: params.category });
+    await category.findByIdAndUpdate(foundCategory._id, {
+      count: foundCategory.count - 1,
+    });
+
+    return res.status(201).json({
+      message: "success",
+    });
+  } catch (error) {
+    console.log(error);
+    errorStatus500(error, res);
+  }
+};
+
+// Method: GET; Description: Get user by _id
+const get_user = async ({ params }, res) => {
+  try {
+    await bodyRequirer({ body: params, requiredValue: ["_id"] });
+    return res.status(200).json({
+      message: "success",
+      data: {
+        ...(await user.findById(params._id))._doc,
+        password: "*******",
+        email: "******@gmail.com",
+      },
+    });
+  } catch (error) {
+    errorStatus500(error, res);
+  }
+};
+
+// Method: POST; Description: Follow user
+const follow_user = async ({ body, query: { access_token } }, res) => {
+  try {
+    await bodyRequirer({ body, requiredValue: ["_id"] });
+
+    await user.findByIdAndUpdate(access_token, {
+      followers: [...(await user.findById(access_token)).followers, body._id],
+    });
+    return res.status(201).json({
+      message: "success",
+    });
+  } catch (error) {
+    errorStatus500(error, res);
+  }
+};
+
+const unfollow_user = async ({ body, query: { access_token } }, res) => {
+  try {
+    await bodyRequirer({ body, requiredValue: ["_id"] });
+
+    await user.findByIdAndUpdate(access_token, {
+      followers: (
+        await user.findById(access_token)
+      ).followers.filter((v) => v !== body._id),
+    });
+
+    return res.status(201).json({
+      message: "success",
+    });
+  } catch (error) {
+    errorStatus500(error, res);
+  }
+};
+
 module.exports = {
   sign_in,
   sign_up,
@@ -325,4 +467,9 @@ module.exports = {
   get_wishlist,
   create_wishlist,
   delete_wishlist,
+  get_products,
+  delete_product,
+  get_user,
+  follow_user,
+  unfollow_user,
 };
