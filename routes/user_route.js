@@ -15,6 +15,13 @@ const {
 } = require("../controller/userController");
 const permissionChecker = require("../tools/permissionChecker");
 const verifyToken = require("../tools/tokenVerification");
+const {
+  get_blog,
+  create_blog,
+  delete_blog,
+  get_blog_byid,
+  get_blog_by_created_by,
+} = require("../controller/blogController");
 const router = Router();
 
 router.get("/by_id/:_id", permissionChecker, get_user);
@@ -55,3 +62,10 @@ router.delete(
 router.post("/follow", permissionChecker, verifyToken, follow_user);
 router.post("/unfollow", permissionChecker, verifyToken, unfollow_user);
 module.exports = router;
+
+// Blog
+router.get("/blog", permissionChecker, get_blog);
+router.get("/blog/:_id", permissionChecker, get_blog_byid);
+router.get("/blog/created-by/:_id", permissionChecker, get_blog_by_created_by);
+router.post("/blog", permissionChecker, verifyToken, create_blog);
+router.delete("/blog", permissionChecker, verifyToken, delete_blog);
