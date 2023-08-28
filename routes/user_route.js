@@ -21,6 +21,7 @@ const {
   delete_blog,
   get_blog_byid,
   get_blog_by_created_by,
+  blog_view,
 } = require("../controller/blogController");
 const router = Router();
 
@@ -39,7 +40,7 @@ router.get("/products", permissionChecker, get_products);
 router.delete(
   "/product/:category",
   permissionChecker,
-  verifyToken,
+  // verifyToken,
   delete_product
 );
 
@@ -69,3 +70,4 @@ router.get("/blog/:_id", permissionChecker, get_blog_byid);
 router.get("/blog/created-by/:_id", permissionChecker, get_blog_by_created_by);
 router.post("/blog", permissionChecker, verifyToken, create_blog);
 router.delete("/blog", permissionChecker, verifyToken, delete_blog);
+router.put("/blog/view", permissionChecker, blog_view);

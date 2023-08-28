@@ -2,11 +2,20 @@ const { errorStatus500, bodyRequirer } = require("../errors");
 const { blog } = require("../models/blogModel");
 
 // Method: GET; Description: Get blogs
-const get_blog = async ({ query: { access_token } }, res) => {
+const get_blog = async ({ query: { search } }, res) => {
   try {
     return res.status(200).json({
       message: "success",
-      data: await blog.find(),
+      data: await blog.find({
+        $or: [
+          {
+            title: {
+              $regex: `${search}`,
+              $options: "i",
+            },
+          },
+        ],
+      }),
     });
   } catch (error) {
     errorStatus500(error, res);
@@ -72,10 +81,25 @@ const get_blog_by_created_by = async ({ params }, res) => {
   }
 };
 
+// Method: PUT; Description: Increase view
+const blog_view = async ({ body }, res) => {
+  try {
+    await bodyRequirer({ body, requiredValue: ["_id"] });
+    const foundBlog = await blog.findById(body._id);
+    await blog.findByIdAndUpdate(body._id, {
+      views: Number(foundBlog.views) + 1,
+    });
+    return res.status(201).json({ message: "success" });
+  } catch (error) {
+    errorStatus500(error, res);
+  }
+};
+
 module.exports = {
   get_blog,
   create_blog,
   delete_blog,
   get_blog_byid,
   get_blog_by_created_by,
+  blog_view,
 };

@@ -341,44 +341,26 @@ const get_products = async ({ query: { access_token } }, res) => {
 };
 
 // Method: DELETE; Description: Delete product by created_by
-const delete_by_category_and_created_by = async ({ type, created_by, _id }) => {
+const delete_by_category_and_created_by = async ({ type, _id }) => {
   switch (type) {
     case "house-plants":
-      if ((await house_plants.findById(_id)).created_by === created_by)
-        return await house_plants.findByIdAndDelete(_id);
-      else throw new Error("Your access token is not same with flower _id!");
+      return await house_plants.findByIdAndDelete(_id);
     case "potter-plants":
-      if ((await potter_plants.findById(_id)).created_by === created_by)
-        return await potter_plants.findByIdAndDelete(_id);
-      else throw new Error("Your access token is not same with flower _id!");
+      return await potter_plants.findByIdAndDelete(_id);
     case "seeds":
-      if ((await seeds.findById(_id)).created_by === created_by)
-        return await seeds.findByIdAndDelete(_id);
-      else throw new Error("Your access token is not same with flower _id!");
+      return await seeds.findByIdAndDelete(_id);
     case "small-plants":
-      if ((await small_plants.findById(_id)).created_by === created_by)
-        return await small_plants.findByIdAndDelete(_id);
-      else throw new Error("Your access token is not same with flower _id!");
+      return await small_plants.findByIdAndDelete(_id);
     case "big-plants":
-      if ((await big_plants.findById(_id).created_by) === created_by)
-        return await big_plants.findByIdAndDelete(_id);
-      else throw new Error("Your access token is not same with flower _id!");
+      return await big_plants.findByIdAndDelete(_id);
     case "succulents":
-      if ((await succulents.findById(_id)).created_by === created_by)
-        return await succulents.findByIdAndDelete(_id);
-      else throw new Error("Your access token is not same with flower _id!");
+      return await succulents.findByIdAndDelete(_id);
     case "trerrariums":
-      if ((await trerrariums.findById(_id)).created_by === created_by)
-        return await trerrariums.findByIdAndDelete(_id);
-      else throw new Error("Your access token is not same with flower _id!");
+      return await trerrariums.findByIdAndDelete(_id);
     case "gardening":
-      if ((await gardening.findById(_id)).created_by === created_by)
-        return await gardening.findByIdAndDelete(_id);
-      else throw new Error("Your access token is not same with flower _id!");
+      return await gardening.findByIdAndDelete(_id);
     case "accessories":
-      if ((await accessories.findById(_id)).created_by === created_by)
-        return await accessories.findByIdAndDelete(_id);
-      else throw new Error("Your access token is not same with flower _id!");
+      return await accessories.findByIdAndDelete(_id);
     default:
       throw new Error("Request should be provided with plant category!");
   }
@@ -394,9 +376,12 @@ const delete_product = async (
       created_by: access_token,
       _id: body._id,
     });
-    const foundCategory = await category.find({ route_path: params.category });
-    await category.findByIdAndUpdate(foundCategory._id, {
-      count: foundCategory.count - 1,
+    const foundCategory = await category.find({
+      route_path: params.category,
+    });
+
+    await category.findByIdAndUpdate(foundCategory[0]._id, {
+      count: Number(foundCategory[0].count - 1),
     });
 
     return res.status(201).json({
