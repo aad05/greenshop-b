@@ -153,6 +153,8 @@ const sign_up_with_google = async ({ body, query }, res) => {
       created_by: access_token,
     });
 
+    await notification.create({ belongs_to: created_user._id });
+
     jwt.sign(
       { user: created_user },
       "09qrjjwef923jnrge$5ndjwk",
@@ -200,6 +202,8 @@ const sign_up = async ({ body, query }, res) => {
       user_type: verified ? "developer" : "observer",
       created_by: access_token,
     });
+
+    await notification.create({ belongs_to: created_user._id });
 
     jwt.sign(
       { user: created_user },
