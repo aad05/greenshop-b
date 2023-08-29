@@ -12,6 +12,8 @@ const {
   get_user,
   follow_user,
   unfollow_user,
+  sign_in_with_google,
+  sign_up_with_google,
 } = require("../controller/userController");
 const permissionChecker = require("../tools/permissionChecker");
 const verifyToken = require("../tools/tokenVerification");
@@ -23,10 +25,16 @@ const {
   get_blog_by_created_by,
   blog_view,
 } = require("../controller/blogController");
+const {
+  get_notification,
+  send_invitation,
+} = require("../controller/notificationController");
 const router = Router();
 
 router.get("/by_id/:_id", permissionChecker, get_user);
 router.post("/sign-in", permissionChecker, sign_in);
+router.post("/sign-in/google", permissionChecker, sign_in_with_google);
+router.post("/sign-up/google", permissionChecker, sign_up_with_google);
 router.post("/sign-up", permissionChecker, verifyToken, sign_up);
 router.post(
   "/account-details",
@@ -71,3 +79,12 @@ router.get("/blog/created-by/:_id", permissionChecker, get_blog_by_created_by);
 router.post("/blog", permissionChecker, verifyToken, create_blog);
 router.delete("/blog", permissionChecker, verifyToken, delete_blog);
 router.put("/blog/view", permissionChecker, blog_view);
+
+// Notification
+router.get("/notification", permissionChecker, verifyToken, get_notification);
+router.post(
+  "/notification/invite",
+  permissionChecker,
+  verifyToken,
+  send_invitation
+);

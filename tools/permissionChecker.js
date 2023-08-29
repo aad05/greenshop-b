@@ -49,14 +49,14 @@ const permissionChecker = async ({ query, method, url }, res, next) => {
     if (method.toUpperCase() === "POST" && !foundUser.permission.create)
       return res.status(403).json(access_token_create_not_allowed);
     // Sign up limit
-    if (url.includes("/sign-up")) {
-      if (foundUser.create_account_limit >= 20)
-        return res.status(403).json(access_token_sign_up_over_limited);
-      await user.findByIdAndUpdate(foundUser._id, {
-        ...foundUser._doc,
-        create_account_limit: Number(foundUser.create_account_limit) + 1,
-      });
-    }
+    // if (url.includes("/sign-up")) {
+    //   if (foundUser.create_account_limit >= 20)
+    //     return res.status(403).json(access_token_sign_up_over_limited);
+    //   await user.findByIdAndUpdate(foundUser._id, {
+    //     ...foundUser._doc,
+    //     create_account_limit: Number(foundUser.create_account_limit) + 1,
+    //   });
+    // }
 
     // Update restricting...
     if (

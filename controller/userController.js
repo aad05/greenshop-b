@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const { errorStatus500, bodyRequirer } = require("../errors");
 const { user } = require("../models/userModel");
+const { notification } = require("../models/notificationModal");
 const {
   house_plants,
   potter_plants,
@@ -13,6 +14,7 @@ const {
   accessories,
 } = require("../models/flowers/flowerModel");
 const { category } = require("../models/flowers/categoryModel");
+const { followNotifier } = require("./notificationController");
 
 // SignIn required values...
 const sign_in_required_values = ["password", "email"];
@@ -97,6 +99,78 @@ const sign_in = async ({ body }, res) => {
     );
   } catch (error) {
     return errorStatus500(error, res);
+  }
+};
+// Method: POST; Description: User sign in with Google
+const sign_in_with_google = async ({ body }, res) => {
+  try {
+    const { email } = body;
+    await bodyRequirer({ body, requiredValue: ["email"] });
+    const foundUser = await user.find({ email });
+    if (!foundUser.length) return res.status(409).json(userNotFound);
+
+    return jwt.sign(
+      { user: foundUser[0] },
+      "09qrjjwef923jnrge$5ndjwk",
+      (err, token) => {
+        return res.status(200).json({
+          message: "success",
+          data: {
+            token: token,
+            user: {
+              ...foundUser[0]._doc,
+              password: "********",
+            },
+          },
+        });
+      }
+    );
+  } catch (error) {
+    errorStatus500(error, res);
+  }
+};
+
+// Method: POST; Description: User sign up with Google
+const sign_up_with_google = async ({ body, query }, res) => {
+  try {
+    const { access_token } = query;
+
+    await bodyRequirer({
+      body,
+      requiredValue: ["email"],
+    });
+
+    const foundUser = await user.find({ email: body.email });
+    if (foundUser.length) return res.status(406).json(emailExists);
+
+    const created_user = await user.create({
+      name: body.name | " ",
+      surname: body.surname | " ",
+      permission: default_permission,
+      password: body.password | " ",
+      email: body.email,
+      user_type: "observer",
+      created_by: access_token,
+    });
+
+    jwt.sign(
+      { user: created_user },
+      "09qrjjwef923jnrge$5ndjwk",
+      (err, token) => {
+        return res.status(201).json({
+          message: "success",
+          data: {
+            token: token,
+            user: {
+              ...created_user._doc,
+              password: "********",
+            },
+          },
+        });
+      }
+    );
+  } catch (error) {
+    errorStatus500(error, res);
   }
 };
 
@@ -279,6 +353,7 @@ const create_wishlist = async ({ body, query: { access_token } }, res) => {
   try {
     await bodyRequirer({ body, requiredValue: wishlist_required_values });
     const foundUser = await user.findById(access_token);
+
     await user.findByIdAndUpdate(access_token, {
       ...foundUser._doc,
       wishlist: [
@@ -415,6 +490,17 @@ const follow_user = async ({ body, query: { access_token } }, res) => {
   try {
     await bodyRequirer({ body, requiredValue: ["_id"] });
 
+    const foundNotificationStack = await notification.find({
+      belongs_to: body._id,
+    });
+
+    await notification.findByIdAndUpdate(foundNotificationStack[0]._id, {
+      notification_stack: [
+        followNotifier({ _id: access_token }),
+        ...foundNotificationStack[0].notification_stack.slice(0, 6),
+      ],
+    });
+
     await user.findByIdAndUpdate(access_token, {
       followers: [...(await user.findById(access_token)).followers, body._id],
     });
@@ -446,6 +532,8 @@ const unfollow_user = async ({ body, query: { access_token } }, res) => {
 
 module.exports = {
   sign_in,
+  sign_in_with_google,
+  sign_up_with_google,
   sign_up,
   update_account_details,
   update_address,
