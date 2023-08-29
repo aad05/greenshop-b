@@ -42,12 +42,22 @@ const permissionChecker = async ({ query, method, url }, res, next) => {
     const { access_token } = query;
     // Access token not provided...
     if (!access_token) return res.status(403).json(access_token_error);
+    // Make order redirecting
+    // if (url.includes("order")) return next();
+    // // Wishlist create redirecting
+    // if (url.includes("wishlist")) return next();
+    // // Editing account details
+    // if (url.includes("/account-details")) return next();
+    // // Editing address
+    // if (url.includes("/address")) return next();
+
     const foundUser = await user.findById(access_token);
     // Not found...
     if (!foundUser) return res.status(403).json(access_token_not_found);
+
     // Create restricting...
-    if (method.toUpperCase() === "POST" && !foundUser.permission.create)
-      return res.status(403).json(access_token_create_not_allowed);
+    // if (method.toUpperCase() === "POST" && !foundUser.permission.create)
+    //   return res.status(403).json(access_token_create_not_allowed);
     // Sign up limit
     // if (url.includes("/sign-up")) {
     //   if (foundUser.create_account_limit >= 20)
@@ -59,17 +69,17 @@ const permissionChecker = async ({ query, method, url }, res, next) => {
     // }
 
     // Update restricting...
-    if (
-      (method.toUpperCase() === "PUT" || method.toUpperCase() === "PATCH") &&
-      !foundUser.permission.update
-    )
-      return res.status(403).json(access_token_update_not_allowed);
+    // if (
+    //   (method.toUpperCase() === "PUT" || method.toUpperCase() === "PATCH") &&
+    //   !foundUser.permission.update
+    // )
+    //   return res.status(403).json(access_token_update_not_allowed);
     // Delete restricting...
-    if (method.toUpperCase() === "DELETE" && !foundUser.permission.delete)
-      return res.status(403).json(access_token_delete_not_allowed);
+    // if (method.toUpperCase() === "DELETE" && !foundUser.permission.delete)
+    //   return res.status(403).json(access_token_delete_not_allowed);
     // Read restricting...
-    if (method.toUpperCase() === "GET" && !foundUser.permission.read)
-      return res.status(403).json(access_token_read_not_allowed);
+    // if (method.toUpperCase() === "GET" && !foundUser.permission.read)
+    //   return res.status(403).json(access_token_read_not_allowed);
 
     return next();
   } catch (error) {
