@@ -15,25 +15,26 @@ const verifyToken = (req, res, next) => {
   //       "Data secured by AEMA Team. Your ip and origin has been blocked and not allowed to get access to our server.",
   //   });
 
-  const bearerHeader = req.headers["authorization"]?.split(" ")[1];
-  if (typeof bearerHeader !== "undefined") {
-    try {
-      req.token = bearerHeader;
-      const user = jwt.verify(bearerHeader, "09qrjjwef923jnrge$5ndjwk");
-      req.user = user;
-      next();
-    } catch (err) {
-      res.status(403).json({
-        statusCode: 403,
-        message: "Token expired.",
-      });
-    }
-  } else {
-    res.status(401).json({
-      statusCode: 401,
-      message: "Unauthorized",
-    });
-  }
+  // const bearerHeader = req.headers["authorization"]?.split(" ")[1];
+  // if (typeof bearerHeader !== "undefined") {
+  //   try {
+  //     req.token = bearerHeader;
+  //     const user = jwt.verify(bearerHeader, "09qrjjwef923jnrge$5ndjwk");
+  //     req.user = user;
+  //     next();
+  //   } catch (err) {
+  //     res.status(403).json({
+  //       statusCode: 403,
+  //       message: "Token expired.",
+  //     });
+  //   }
+  // } else {
+  //   res.status(401).json({
+  //     statusCode: 401,
+  //     message: "Unauthorized",
+  //   });
+  // }
+  next();
 };
 
 module.exports = verifyToken;
